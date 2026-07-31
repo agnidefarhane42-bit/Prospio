@@ -38,3 +38,4 @@ hf-space/
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+.env.vercel
