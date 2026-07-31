@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateMessage } from '@/lib/gemini';
+import { generateMessage } from '@/lib/ai';
 
-// POST /api/messages/generate - Génère un message IA personnalisé
+/**
+ * POST /api/messages/generate - Génère un message IA personnalisé
+ * Utilise Groq (Llama 3.3 70B) par défaut, Gemini en fallback.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -11,7 +14,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Informations du prospect requises' }, { status: 400 });
     }
 
-    const defaultPersona = persona || `Fondateur de DocEngine (SaaS boilerplate Next.js) et iAfriShip (logistique + mobile money en Afrique). Basé à Cotonou, Bénin. Passionné par la tech africaine et l'entrepreneuriat.`;
+    const defaultPersona =
+      persona ||
+      `Fondateur de DocEngine (SaaS boilerplate Next.js) et iAfriShip (logistique + mobile money en Afrique). Basé à Cotonou, Bénin. Passionné par la tech africaine et l'entrepreneuriat.`;
 
     const message = await generateMessage(prospect, defaultPersona, tone || 'Amical');
 
