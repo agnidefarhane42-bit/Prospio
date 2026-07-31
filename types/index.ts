@@ -1,53 +1,78 @@
+// Types alignés sur le schéma Prisma / API réelle
+
 export type ProspectStatus = 'new' | 'visited' | 'messaged' | 'replied' | 'connected';
 
 export type ProfileType = 'Founder' | 'CEO' | 'CTO' | 'Investor' | 'Product Manager' | 'Developer';
 
+/**
+ * Prospect tel que retourné par l'API (Prisma).
+ * Les champs sont en camelCase côté API grâce au map Prisma.
+ */
 export interface Prospect {
-  id: string;
+  id: number;
   name: string;
-  avatarInitials: string;
-  headline: string;
-  company: string;
-  location: string;
-  profileType: ProfileType;
+  profileUrl: string;
+  profileType: string | null;
+  headline: string | null;
+  company: string | null;
+  location: string | null;
   status: ProspectStatus;
-  intentScore: number; // 0 to 100
-  linkedinUrl: string;
-  email?: string;
-  bio?: string;
-  generatedMessage?: string;
-  campaignId?: string;
-  currentCampaignStep?: number;
-  timeline: {
-    visitedAt?: string;
-    messagedAt?: string;
-    repliedAt?: string;
-    connectedAt?: string;
-  };
-}
-
-export interface SequenceStep {
-  id: string;
-  stepNumber: number;
-  type: 'visit' | 'connect' | 'message' | 'followup';
-  title: string;
-  description: string;
-  delayHours: number;
+  messageText: string | null;
+  messageSent: boolean;
+  visitDate: string | null;
+  notes: string | null;
+  intentScore: number | null;
+  signals: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Campaign {
-  id: string;
+  id: number;
   name: string;
+  description: string | null;
   status: 'active' | 'paused' | 'completed' | 'draft';
-  channel: 'linkedin' | 'email' | 'multi';
-  completedProspects: number;
-  totalProspects: number;
+  channel: string;
   dailyVisitLimit: number;
   dailyMessageLimit: number;
-  stepCount: number;
-  responseRate: number; // percentage
-  steps: SequenceStep[];
-  prospects: Prospect[];
+  smartDelayMin: number;
+  smartDelayMax: number;
+  createdAt: string;
+  updatedAt: string;
+  steps?: Step[];
+  prospects?: CampaignProspect[];
+}
+
+export interface Step {
+  id: number;
+  campaignId: number;
+  order: number;
+  type: string;
+  channel: string;
+  delayDays: number;
+  template: string | null;
+  createdAt: string;
+}
+
+export interface CampaignProspect {
+  id: number;
+  campaignId: number;
+  prospectId: number;
+  currentStep: number;
+  status: string;
+  addedAt: string;
+  prospect?: Prospect;
+}
+
+export interface Activity {
+  id: number;
+  type: string | null;
+  prospectId: number | null;
+  campaignId: number | null;
+  status: string;
+  message: string | null;
+  screenshot: string | null;
+  createdAt: string;
 }
 
 export interface AISettings {
@@ -62,11 +87,19 @@ export interface SettingsState {
   smartDelayMin: number;
   smartDelayMax: number;
   safeMode: boolean;
-  geminiApiKey: string;
   aiPersona: string;
   aiTone: 'Professionnel' | 'Amical' | 'Direct' | 'Persuasif';
   linkedinEmail: string;
-  linkedinPassword: string;
   appName: string;
   timezone: string;
+}
+
+/** Helper pour obtenir les initiales d'un nom */
+export function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || '??';
 }
