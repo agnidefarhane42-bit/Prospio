@@ -1,0 +1,109 @@
+// Prisma schema for LinkedIn prospecting SaaS app (Reakly.com style)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Prospect {
+  id          Int       @id @default(autoincrement())
+  name        String
+  profileUrl  String    @unique @map("profile_url")
+  profileType String?   @map("profile_type")
+  headline    String?
+  company     String?
+  location    String?
+  status      String    @default("new")
+  messageText String?   @map("message_text")
+  messageSent Boolean   @default(false) @map("message_sent")
+  visitDate   DateTime? @map("visit_date")
+  notes       String?
+  intentScore Int?      @map("intent_score")
+  signals     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  campaigns  CampaignProspect[]
+  activities Activity[]
+
+  @@map("prospects")
+}
+
+model Campaign {
+  id                Int       @id @default(autoincrement())
+  name              String
+  description       String?
+  status            String    @default("draft")
+  channel           String    @default("linkedin")
+  dailyVisitLimit   Int       @default(20) @map("daily_visit_limit")
+  dailyMessageLimit Int       @default(10) @map("daily_message_limit")
+  smartDelayMin     Int       @default(30) @map("smart_delay_min")
+  smartDelayMax     Int       @default(120) @map("smart_delay_max")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  steps      Step[]
+  prospects  CampaignProspect[]
+  activities Activity[]
+
+  @@map("campaigns")
+}
+
+model Step {
+  id         Int      @id @default(autoincrement())
+  campaignId Int      @map("campaign_id")
+  order      Int
+  type       String
+  channel    String
+  delayDays  Int      @default(0) @map("delay_days")
+  template   String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("steps")
+}
+
+model CampaignProspect {
+  id          Int      @id @default(autoincrement())
+  campaignId  Int      @map("campaign_id")
+  prospectId  Int      @map("prospect_id")
+  currentStep Int      @default(0) @map("current_step")
+  status      String   @default("pending")
+  addedAt     DateTime @default(now()) @map("added_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  prospect Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, prospectId])
+  @@map("campaign_prospects")
+}
+
+model Activity {
+  id         Int      @id @default(autoincrement())
+  type       String
+  prospectId Int?     @map("prospect_id")
+  campaignId Int?     @map("campaign_id")
+  status     String
+  message    String?
+  screenshot String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  prospect Prospect? @relation(fields: [prospectId], references: [id], onDelete: SetNull)
+  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  @@map("activities")
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String?
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
