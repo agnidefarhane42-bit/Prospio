@@ -15,6 +15,7 @@ export async function GET() {
       `CREATE TABLE IF NOT EXISTS "prospects" (
         "id" SERIAL NOT NULL,
         "name" TEXT NOT NULL,
+        "email" TEXT,
         "profile_url" TEXT NOT NULL,
         "profile_type" TEXT,
         "headline" TEXT,
@@ -31,7 +32,17 @@ export async function GET() {
         "updated_at" TIMESTAMP(3) NOT NULL,
         CONSTRAINT "prospects_pkey" PRIMARY KEY ("id")
       );`,
+      `ALTER TABLE "prospects" ADD COLUMN IF NOT EXISTS "email" TEXT;`,
       `CREATE UNIQUE INDEX IF NOT EXISTS "prospects_profile_url_key" ON "prospects"("profile_url");`,
+      `CREATE TABLE IF NOT EXISTS "email_logs" (
+        "id" SERIAL NOT NULL,
+        "prospect_id" INTEGER NOT NULL,
+        "subject" TEXT NOT NULL,
+        "body" TEXT NOT NULL,
+        "status" TEXT NOT NULL DEFAULT 'sent',
+        "sent_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "email_logs_pkey" PRIMARY KEY ("id")
+      );`,
       `CREATE TABLE IF NOT EXISTS "campaigns" (
         "id" SERIAL NOT NULL,
         "name" TEXT NOT NULL,
@@ -95,6 +106,7 @@ export async function GET() {
 
     // Ajouter les foreign keys
     const fkQueries = [
+      `ALTER TABLE "email_logs" ADD CONSTRAINT IF NOT EXISTS "email_logs_prospect_id_fkey" FOREIGN KEY ("prospect_id") REFERENCES "prospects"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
       `ALTER TABLE "steps" ADD CONSTRAINT IF NOT EXISTS "steps_campaign_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "campaigns"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
       `ALTER TABLE "campaign_prospects" ADD CONSTRAINT IF NOT EXISTS "campaign_prospects_campaign_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "campaigns"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
       `ALTER TABLE "campaign_prospects" ADD CONSTRAINT IF NOT EXISTS "campaign_prospects_prospect_id_fkey" FOREIGN KEY ("prospect_id") REFERENCES "prospects"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,

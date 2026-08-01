@@ -11,6 +11,7 @@ export async function GET(
       where: { id: parseInt(params.id) },
       include: {
         activities: { orderBy: { createdAt: 'desc' }, take: 20 },
+        emails: { orderBy: { sentAt: 'desc' } },
       },
     });
 
@@ -32,11 +33,12 @@ export async function PATCH(
 ) {
   try {
     const body = await request.json();
-    const { status, messageText, messageSent, visitDate, notes, intentScore, signals } = body;
+    const { email, status, messageText, messageSent, visitDate, notes, intentScore, signals } = body;
 
     const prospect = await prisma.prospect.update({
       where: { id: parseInt(params.id) },
       data: {
+        ...(email !== undefined && { email }),
         ...(status !== undefined && { status }),
         ...(messageText !== undefined && { messageText }),
         ...(messageSent !== undefined && { messageSent }),

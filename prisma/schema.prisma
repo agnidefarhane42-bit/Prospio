@@ -12,6 +12,7 @@ datasource db {
 model Prospect {
   id          Int       @id @default(autoincrement())
   name        String
+  email       String?
   profileUrl  String    @unique @map("profile_url")
   profileType String?   @map("profile_type")
   headline    String?
@@ -29,8 +30,22 @@ model Prospect {
 
   campaigns  CampaignProspect[]
   activities Activity[]
+  emails     EmailLog[]
 
   @@map("prospects")
+}
+
+model EmailLog {
+  id         Int      @id @default(autoincrement())
+  prospectId Int      @map("prospect_id")
+  subject    String
+  body       String
+  status     String   @default("sent") // sent, failed, opened, replied
+  sentAt     DateTime @default(now()) @map("sent_at")
+
+  prospect Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@map("email_logs")
 }
 
 model Campaign {

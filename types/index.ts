@@ -1,6 +1,6 @@
 // Types alignés sur le schéma Prisma / API réelle
 
-export type ProspectStatus = 'new' | 'visited' | 'messaged' | 'replied' | 'connected';
+export type ProspectStatus = 'new' | 'visited' | 'messaged' | 'replied' | 'connected' | 'email_sent';
 
 export type ProfileType = 'Founder' | 'CEO' | 'CTO' | 'Investor' | 'Product Manager' | 'Developer';
 
@@ -11,6 +11,7 @@ export type ProfileType = 'Founder' | 'CEO' | 'CTO' | 'Investor' | 'Product Mana
 export interface Prospect {
   id: number;
   name: string;
+  email?: string | null;
   profileUrl: string;
   profileType: string | null;
   headline: string | null;
@@ -25,6 +26,16 @@ export interface Prospect {
   signals: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface EmailLog {
+  id: number;
+  prospectId: number;
+  subject: string;
+  body: string;
+  status: string;
+  sentAt: string;
+  prospect?: Prospect;
 }
 
 export interface Campaign {

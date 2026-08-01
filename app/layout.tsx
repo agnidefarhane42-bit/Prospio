@@ -7,7 +7,8 @@ import {
   Sparkles,
   Settings,
   Linkedin,
-  ShieldCheck
+  ShieldCheck,
+  Mail
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -35,7 +36,7 @@ export default function RootLayout({
                 <span className="font-extrabold text-lg tracking-tight text-gray-900 flex items-center gap-1">
                   Prospio <span className="text-sky-600 font-normal text-xs bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100">PRO</span>
                 </span>
-                <span className="text-[10px] text-gray-400 font-medium">LinkedIn AI Automation</span>
+                <span className="text-[10px] text-gray-400 font-medium">LinkedIn & Email AI Automation</span>
               </div>
             </Link>
 
@@ -63,6 +64,14 @@ export default function RootLayout({
               >
                 <Sparkles className="w-4 h-4 text-indigo-600" />
                 <span>Messages IA</span>
+              </Link>
+
+              <Link
+                href="/emails"
+                className="flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+              >
+                <Mail className="w-4 h-4 text-emerald-600" />
+                <span>Emails</span>
               </Link>
 
               <Link
@@ -99,6 +108,10 @@ export default function RootLayout({
             <Link href="/messages" className="text-xs font-semibold text-gray-700 flex flex-col items-center gap-0.5 px-2">
               <Sparkles className="w-4 h-4 text-indigo-600" />
               <span>Messages</span>
+            </Link>
+            <Link href="/emails" className="text-xs font-semibold text-gray-700 flex flex-col items-center gap-0.5 px-2">
+              <Mail className="w-4 h-4 text-emerald-600" />
+              <span>Emails</span>
             </Link>
             <Link href="/settings" className="text-xs font-semibold text-gray-700 flex flex-col items-center gap-0.5 px-2">
               <Settings className="w-4 h-4 text-gray-500" />

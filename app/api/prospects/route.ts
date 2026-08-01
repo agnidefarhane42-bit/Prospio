@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, profileUrl, profileType, headline, company, location, notes, intentScore, signals } = body;
+    const { name, email, profileUrl, profileType, headline, company, location, notes, intentScore, signals } = body;
 
     if (!name || !profileUrl) {
       return NextResponse.json({ error: 'Nom et URL du profil requis' }, { status: 400 });
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     const prospect = await prisma.prospect.create({
       data: {
         name,
+        email,
         profileUrl,
         profileType,
         headline,
