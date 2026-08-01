@@ -55,7 +55,7 @@ export default function CampaignsPage() {
     const newStatus = campaign.status === 'active' ? 'paused' : 'active';
 
     try {
-      const res = await fetch(, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) }); if (!res.ok) throw new Error('Erreur');
+      const res = await fetch(`/api/campaigns/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) }); if (!res.ok) throw new Error('Erreur');
       setCampaigns((prev) =>
         prev.map((c) => (c.id === id ? { ...c, status: newStatus as Campaign['status'] } : c))
       );
