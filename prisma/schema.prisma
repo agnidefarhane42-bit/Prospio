@@ -28,11 +28,26 @@ model Prospect {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  campaigns  CampaignProspect[]
-  activities Activity[]
-  emails     EmailLog[]
+  campaigns     CampaignProspect[]
+  activities    Activity[]
+  emails        EmailLog[]
+  conversations Conversation[]
 
   @@map("prospects")
+}
+
+model Conversation {
+  id          Int      @id @default(autoincrement())
+  prospectId  Int      @map("prospect_id")
+  channel     String   // linkedin, email
+  direction   String   // outbound, inbound (outbound = envoyé par nous, inbound = réponse du prospect)
+  content     String
+  status      String   @default("sent") // sent, delivered, read, replied
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  prospect Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@map("conversations")
 }
 
 model EmailLog {
@@ -69,14 +84,16 @@ model Campaign {
 }
 
 model Step {
-  id         Int      @id @default(autoincrement())
-  campaignId Int      @map("campaign_id")
-  order      Int
-  type       String
-  channel    String
-  delayDays  Int      @default(0) @map("delay_days")
-  template   String?
-  createdAt  DateTime @default(now()) @map("created_at")
+  id           Int      @id @default(autoincrement())
+  campaignId   Int      @map("campaign_id")
+  order        Int
+  type         String
+  channel      String
+  delayDays    Int      @default(0) @map("delay_days")
+  template     String?
+  emailSubject String?  @map("email_subject")
+  emailBody    String?  @map("email_body")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 

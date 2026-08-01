@@ -43,6 +43,17 @@ export async function GET() {
         "sent_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "email_logs_pkey" PRIMARY KEY ("id")
       );`,
+      `CREATE TABLE IF NOT EXISTS "conversations" (
+        "id" SERIAL NOT NULL,
+        "prospect_id" INTEGER NOT NULL,
+        "channel" TEXT NOT NULL,
+        "direction" TEXT NOT NULL,
+        "content" TEXT NOT NULL,
+        "status" TEXT NOT NULL DEFAULT 'sent',
+        "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "conversations_pkey" PRIMARY KEY ("id")
+      );`,
       `CREATE TABLE IF NOT EXISTS "campaigns" (
         "id" SERIAL NOT NULL,
         "name" TEXT NOT NULL,
@@ -65,9 +76,13 @@ export async function GET() {
         "channel" TEXT NOT NULL,
         "delay_days" INTEGER NOT NULL DEFAULT 0,
         "template" TEXT,
+        "email_subject" TEXT,
+        "email_body" TEXT,
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "steps_pkey" PRIMARY KEY ("id")
       );`,
+      `ALTER TABLE "steps" ADD COLUMN IF NOT EXISTS "email_subject" TEXT;`,
+      `ALTER TABLE "steps" ADD COLUMN IF NOT EXISTS "email_body" TEXT;`,
       `CREATE TABLE IF NOT EXISTS "campaign_prospects" (
         "id" SERIAL NOT NULL,
         "campaign_id" INTEGER NOT NULL,
@@ -107,6 +122,7 @@ export async function GET() {
     // Ajouter les foreign keys
     const fkQueries = [
       `ALTER TABLE "email_logs" ADD CONSTRAINT IF NOT EXISTS "email_logs_prospect_id_fkey" FOREIGN KEY ("prospect_id") REFERENCES "prospects"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
+      `ALTER TABLE "conversations" ADD CONSTRAINT IF NOT EXISTS "conversations_prospect_id_fkey" FOREIGN KEY ("prospect_id") REFERENCES "prospects"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
       `ALTER TABLE "steps" ADD CONSTRAINT IF NOT EXISTS "steps_campaign_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "campaigns"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
       `ALTER TABLE "campaign_prospects" ADD CONSTRAINT IF NOT EXISTS "campaign_prospects_campaign_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "campaigns"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
       `ALTER TABLE "campaign_prospects" ADD CONSTRAINT IF NOT EXISTS "campaign_prospects_prospect_id_fkey" FOREIGN KEY ("prospect_id") REFERENCES "prospects"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,

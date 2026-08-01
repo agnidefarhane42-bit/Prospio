@@ -6,9 +6,9 @@ import {
   Layers,
   Sparkles,
   Settings,
-  Linkedin,
   ShieldCheck,
-  Mail
+  Mail,
+  MessageSquare
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -75,6 +75,14 @@ export default function RootLayout({
               </Link>
 
               <Link
+                href="/crm"
+                className="flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+              >
+                <MessageSquare className="w-4 h-4 text-indigo-600" />
+                <span>CRM</span>
+              </Link>
+
+              <Link
                 href="/settings"
                 className="flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-gray-700 hover:text-sky-600 hover:bg-sky-50 transition-colors"
               >
@@ -112,6 +120,10 @@ export default function RootLayout({
             <Link href="/emails" className="text-xs font-semibold text-gray-700 flex flex-col items-center gap-0.5 px-2">
               <Mail className="w-4 h-4 text-emerald-600" />
               <span>Emails</span>
+            </Link>
+            <Link href="/crm" className="text-xs font-semibold text-gray-700 flex flex-col items-center gap-0.5 px-2">
+              <MessageSquare className="w-4 h-4 text-indigo-600" />
+              <span>CRM</span>
             </Link>
             <Link href="/settings" className="text-xs font-semibold text-gray-700 flex flex-col items-center gap-0.5 px-2">
               <Settings className="w-4 h-4 text-gray-500" />

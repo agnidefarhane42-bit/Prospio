@@ -10,18 +10,21 @@ import {
   Sparkles,
   Trash2,
   Users,
-  Building,
   UserCheck,
   TrendingUp,
   Check,
-  Loader2
+  Loader2,
+  Zap,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import SignalsBadge from '@/components/SignalsBadge';
 
 export default function ProspectsPage() {
   const router = useRouter();
   const [prospects, setProspects] = useState<Prospect[]>([]);
   const [loading, setLoading] = useState(true);
+  const [analyzingAll, setAnalyzingAll] = useState(false);
+  const [analyzingId, setAnalyzingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedProfileType, setSelectedProfileType] = useState<string>('all');
@@ -64,6 +67,47 @@ export default function ProspectsPage() {
   useEffect(() => {
     fetchProspects();
   }, []);
+
+  // --- Analyse de tous les signaux ---
+  const handleAnalyzeAllSignals = async () => {
+    try {
+      setAnalyzingAll(true);
+      const res = await fetch('/api/prospects/analyze-all', {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Erreur lors de l\'analyse');
+      const data = await res.json();
+      showToast(`Analyse terminée pour ${data.total || prospects.length} prospect(s) !`);
+      await fetchProspects();
+    } catch (e) {
+      console.error('Erreur analyze-all:', e);
+      showToast('Erreur lors de l\'analyse des signaux');
+    } finally {
+      setAnalyzingAll(false);
+    }
+  };
+
+  // --- Analyse d'un seul prospect ---
+  const handleAnalyzeSingleProspect = async (id: number) => {
+    try {
+      setAnalyzingId(id);
+      const res = await fetch(`/api/prospects/${id}/signals`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Erreur analyse prospect');
+      const updatedData = await res.json();
+
+      setProspects((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...updatedData.prospect } : p))
+      );
+      showToast('Signaux mis à jour !');
+    } catch (e) {
+      console.error('Erreur analyze single:', e);
+      showToast('Erreur lors de l\'analyse du prospect');
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
 
   // --- Filtrage ---
   const filteredProspects = useMemo(() => {
@@ -134,7 +178,15 @@ export default function ProspectsPage() {
       const created = await res.json();
       setProspects((prev) => [created, ...prev]);
       setIsAddModalOpen(false);
-      setNewProspect({ name: '', headline: '', company: '', location: '', profileType: 'Founder', profileUrl: '', intentScore: 75 });
+      setNewProspect({
+        name: '',
+        headline: '',
+        company: '',
+        location: '',
+        profileType: 'Founder',
+        profileUrl: '',
+        intentScore: 75,
+      });
       showToast('Prospect ajouté !');
     } catch {
       showToast('Erreur lors de l\'ajout');
@@ -150,7 +202,11 @@ export default function ProspectsPage() {
       connected: { label: 'Connecté', className: 'bg-green-50 text-green-700 border border-green-200' },
     };
     const badge = badges[status] || badges.new;
-    return <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${badge.className}`}>{badge.label}</span>;
+    return (
+      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${badge.className}`}>
+        {badge.label}
+      </span>
+    );
   };
 
   return (
@@ -167,15 +223,34 @@ export default function ProspectsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Prospects</h1>
-          <p className="text-sm text-gray-500 mt-1">Gérez vos cibles LinkedIn et générez des messages IA.</p>
+          <p className="text-sm text-gray-500 mt-1">Gérez vos cibles LinkedIn et analysez leurs signaux d'intention.</p>
         </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center justify-center space-x-2 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Ajouter</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleAnalyzeAllSignals}
+            disabled={analyzingAll || loading}
+            className="inline-flex items-center justify-center space-x-2 bg-white hover:bg-sky-50 text-sky-700 border border-sky-200 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {analyzingAll ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-sky-600" />
+                <span>Analyse en cours...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 text-sky-600" />
+                <span>Analyser les signaux</span>
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center justify-center space-x-2 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Ajouter</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -283,7 +358,7 @@ export default function ProspectsPage() {
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase px-4 py-3 hidden md:table-cell">Titre</th>
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase px-4 py-3 hidden lg:table-cell">Entreprise</th>
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase px-4 py-3">Statut</th>
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-4 py-3 hidden sm:table-cell">Score</th>
+                <th className="text-left text-xs font-semibold text-gray-500 uppercase px-4 py-3 hidden sm:table-cell">Intent Signals</th>
                 <th className="text-right text-xs font-semibold text-gray-500 uppercase px-4 py-3">Actions</th>
               </tr>
             </thead>
@@ -309,15 +384,22 @@ export default function ProspectsPage() {
                   </td>
                   <td className="px-4 py-3">{getStatusBadge(prospect.status)}</td>
                   <td className="px-4 py-3 hidden sm:table-cell">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-16 bg-gray-200 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${prospect.intentScore || 0}%` }} />
-                      </div>
-                      <span className="text-xs font-bold text-gray-700">{prospect.intentScore || 0}%</span>
-                    </div>
+                    <SignalsBadge score={prospect.intentScore} signals={prospect.signals} />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end space-x-1">
+                      <button
+                        onClick={() => handleAnalyzeSingleProspect(prospect.id)}
+                        disabled={analyzingId === prospect.id}
+                        className="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors disabled:opacity-50"
+                        title="Analyser les signaux"
+                      >
+                        {analyzingId === prospect.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-sky-600" />
+                        ) : (
+                          <Zap className="w-4 h-4" />
+                        )}
+                      </button>
                       <button
                         onClick={() => router.push(`/messages?prospectId=${prospect.id}`)}
                         className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"

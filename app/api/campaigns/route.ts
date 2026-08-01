@@ -40,17 +40,30 @@ export async function POST(request: NextRequest) {
         smartDelayMax: smartDelayMax ?? 120,
         steps: steps
           ? {
-              create: steps.map((step: { order: number; type: string; channel: string; delayDays: number; template?: string }, i: number) => ({
+              create: steps.map((step: {
+                order?: number;
+                type: string;
+                channel?: string;
+                delayDays?: number;
+                template?: string;
+                emailSubject?: string;
+                emailBody?: string;
+              }, i: number) => ({
                 order: step.order ?? i + 1,
-                type: step.type,
-                channel: step.channel || 'linkedin',
+                type: step.type || (step.channel === 'email' ? 'email' : 'message'),
+                channel: step.channel || (step.type === 'email' ? 'email' : 'linkedin'),
                 delayDays: step.delayDays ?? 0,
-                template: step.template,
+                template: step.template || null,
+                emailSubject: step.emailSubject || null,
+                emailBody: step.emailBody || null,
               })),
             }
           : undefined,
       },
-      include: { steps: true },
+      include: {
+        steps: { orderBy: { order: 'asc' } },
+        prospects: { include: { prospect: true } },
+      },
     });
 
     return NextResponse.json(campaign, { status: 201 });

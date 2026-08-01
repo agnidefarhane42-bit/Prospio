@@ -26,6 +26,18 @@ export interface Prospect {
   signals: string | null;
   createdAt: string;
   updatedAt: string;
+  conversations?: Conversation[];
+}
+
+export interface Conversation {
+  id: number;
+  prospectId: number;
+  channel: string; // 'linkedin' | 'email'
+  direction: string; // 'outbound' | 'inbound'
+  content: string;
+  status: string; // 'sent' | 'delivered' | 'read' | 'replied'
+  createdAt: string;
+  prospect?: Prospect;
 }
 
 export interface EmailLog {
@@ -62,6 +74,8 @@ export interface Step {
   channel: string;
   delayDays: number;
   template: string | null;
+  emailSubject: string | null;
+  emailBody: string | null;
   createdAt: string;
 }
 
