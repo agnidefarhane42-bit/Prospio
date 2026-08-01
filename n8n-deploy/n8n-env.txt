@@ -1,0 +1,10 @@
+# Variables à configurer sur Railway:
+# N8N_ENCRYPTION_KEY - clé de chiffrement auto-générée
+# GROQ_API_KEY - clé API Groq pour génération messages
+# DATABASE_URL - URL PostgreSQL Neon pour Prospio
+# PROSPIO_API_URL - https://prospio.vercel.app/api
+# LINKEDIN_EMAIL - agnidefarhane42@gmail.com
+# LINKEDIN_PASSWORD - (déjà en mémoire)
+# BROWSERBASE_API_KEY - clé Browserbase pour automatisation navigateur
+# BROWSERBASE_PROJECT_ID - ID projet Browserbase
+# N8N_DEFAULT_BINARY_DATA_MODE=filesystem
