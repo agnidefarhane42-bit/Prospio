@@ -266,7 +266,7 @@ export default function EmailsPage() {
                         }`}
                       >
                         <Mail className="w-3.5 h-3.5" />
-                        <span>Envoyer</span></button>
+                        <span>Envoyer</span>
                       </button>
                     </div>
                   </div>
@@ -375,7 +375,7 @@ export default function EmailsPage() {
                     {generating ? (
                       <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Génération...</span></>
                     ) : (
-                      <><Sparkles className="w-3.5 h-3.5" /><span>Générer avec IA</span></button>
+                      <><Sparkles className="w-3.5 h-3.5" /><span>Générer avec IA</span></>
                     )}
                   </button>
                 </div>
@@ -410,7 +410,7 @@ export default function EmailsPage() {
                 {sending ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /><span>Envoi...</span></>
                 ) : (
-                  <><Send className="w-4 h-4" /><span>Envoyer</span></button>
+                  <><Send className="w-4 h-4" /><span>Envoyer</span></>
                 )}
               </button>
             </div>
