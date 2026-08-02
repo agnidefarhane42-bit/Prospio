@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 /**
  * POST /api/posts/generate
  * Génère le contenu d'un post LinkedIn à partir d'un thème/sujet.
- * Utilise Gemini 1.5 Flash (rapide et économique).
+ * Utilise Gemini Flash (latest) avec fallback sur Flash Lite.
  *
  * Body: { theme: string, tone?: string }
  * Response: { content: string, hashtags: string }
@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     const prompt = `Tu es un expert en création de contenu LinkedIn pour les entrepreneurs tech africains.
     
@@ -48,8 +47,27 @@ Contraintes :
 
 Réponds UNIQUEMENT avec le contenu du post, sans explication ni meta-commentaire.`;
 
-    const result = await model.generateContent(prompt);
-    const content = result.response.text().trim();
+    // Try primary model, fallback to lite
+    const models = ["gemini-flash-latest", "gemini-flash-lite-latest"];
+    let content = "";
+    let lastError = null;
+
+    for (const modelName of models) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        content = result.response.text().trim();
+        if (content) break;
+      } catch (e) {
+        lastError = e;
+        console.error(`Erreur avec ${modelName}:`, e);
+        continue;
+      }
+    }
+
+    if (!content) {
+      throw lastError || new Error("Aucun contenu généré");
+    }
 
     // Extraire les hashtags
     const hashtagMatch = content.match(/#[\wéèêàâçîïôûù]+/g);
