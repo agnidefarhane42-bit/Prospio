@@ -39,3 +39,4 @@ hf-space/
 next-env.d.ts
 .vercel
 .env.vercel
+.env*

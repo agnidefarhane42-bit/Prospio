@@ -182,7 +182,7 @@ export default function PublishPage() {
           <p className="text-sm text-gray-500 mt-1">Génère ton contenu avec l'IA, programme ou publie immédiatement.</p>
         </div>
         <div className="flex items-center gap-2 text-xs font-semibold text-sky-700 bg-sky-50 px-3 py-1.5 rounded-full border border-sky-100">
-          <Sparkles className="w-3.5 h-3.5" /> IA Gemini 1.5 Flash
+          <Sparkles className="w-3.5 h-3.5" /> IA Gemini 2.0 Flash
         </div>
       </div>
 
