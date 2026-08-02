@@ -139,3 +139,20 @@ model Setting {
 
   @@map("settings")
 }
+
+model LinkedInPost {
+  id           Int       @id @default(autoincrement())
+  content      String
+  mediaUrl     String?   @map("media_url")
+  status       String    @default("draft") // draft, scheduled, publishing, published, failed
+  scheduledAt  DateTime? @map("scheduled_at")
+  publishedAt  DateTime? @map("published_at")
+  aiGenerated  Boolean   @default(false) @map("ai_generated")
+  theme        String?   // sujet/topic demandé à l'IA
+  hashtags     String?   // hashtags extraits du contenu
+  error        String?   // message d'erreur si échec
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("linkedin_posts")
+}
